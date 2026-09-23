@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if event else 'New' }} Event · Campus Events{% endblock %}
+{% block content %}
+
+<h3 class="mb-3">{{ 'Edit Event' if event else 'New Event' }}</h3>
+
+<div class="card p-4" style="max-width: 640px;">
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Event Name</label>
+      <input type="text" class="form-control" name="name" required value="{{ event.name if event else '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea class="form-control" name="description" rows="3">{{ event.description if event else '' }}</textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Category</label>
+        <input type="text" class="form-control" name="category" placeholder="e.g. Technical, Cultural, Sports" value="{{ event.category if event else '' }}">
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Venue</label>
+        <input type="text" class="form-control" name="venue" value="{{ event.venue if event else '' }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" name="event_date" required value="{{ event.event_date if event else '' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Time</label>
+        <input type="text" class="form-control" name="event_time" placeholder="e.g. 4:00 PM" value="{{ event.event_time if event else '' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Capacity (0 = unlimited)</label>
+        <input type="number" class="form-control" name="capacity" min="0" value="{{ event.capacity if event else 0 }}">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ 'Save Changes' if event else 'Create Event' }}</button>
+    <a href="{{ url_for('events_list') }}" class="btn btn-link">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}

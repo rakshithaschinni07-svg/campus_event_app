@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }} · Campus Events{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h3 class="mb-1">{{ event.name }}</h3>
+    <span class="badge bg-secondary">{{ event.category }}</span>
+    {% if event.is_upcoming %}<span class="badge bg-success">Upcoming</span>{% else %}<span class="badge bg-secondary">Past</span>{% endif %}
+  </div>
+  <a href="{{ url_for('event_edit', event_id=event.id) }}" class="btn btn-outline-secondary">Edit Event</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-8">
+    <div class="card p-3 h-100">
+      <p class="mb-2">{{ event.description or 'No description provided.' }}</p>
+      <ul class="list-unstyled mb-0 text-muted">
+        <li>📅 {{ event.event_date | prettydate }}{% if event.event_time %} · {{ event.event_time }}{% endif %}</li>
+        <li>📍 {{ event.venue or 'Venue TBA' }}</li>
+        <li>👥 {{ event.registered_count }} registered{% if event.capacity %} / {{ event.capacity }} capacity{% endif %}</li>
+        <li>✅ {{ event.attended_count }} attended</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 h-100">
+      <h6>Register a Student</h6>
+      <form method="post" action="{{ url_for('register_student', event_id=event.id) }}">
+        <select name="student_id" class="form-select mb-2" required>
+          <option value="" disabled selected>Select student…</option>
+          {% for s in available_students %}
+            {% if s.id not in already_ids %}
+              <option value="{{ s.id }}">{{ s.name }} ({{ s.department or 'N/A' }})</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        {% if not available_students %}
+          <p class="text-muted small mb-0">No students yet — add one first.</p>
+        {% endif %}
+        <button class="btn btn-primary w-100">Register</button>
+      </form>
+      <a href="{{ url_for('students_list') }}" class="small d-block mt-2">+ Add a new student</a>
+    </div>
+  </div>
+</div>
+
+<div class="card p-3">
+  <h6 class="mb-3">Registered Students</h6>
+  {% if registrations %}
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Attended</th><th></th></tr></thead>
+      <tbody>
+        {% for r in registrations %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td>{{ r.email }}</td>
+          <td>{{ r.department or '—' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('toggle_attendance', reg_id=r.reg_id) }}">
+              <button class="btn btn-sm {{ 'btn-success' if r.attended else 'btn-outline-secondary' }}">
+                {{ 'Attended ✓' if r.attended else 'Mark Attended' }}
+              </button>
+            </form>
+          </td>
+          <td>
+            <form method="post" action="{{ url_for('unregister_student', reg_id=r.reg_id) }}" onsubmit="return confirm('Remove this registration?');">
+              <button class="btn btn-sm btn-outline-danger">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mb-0">No students registered yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
